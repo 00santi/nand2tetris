@@ -1,0 +1,85 @@
+/**
+ * The Hack Central Processing unit (CPU).
+ * Parses the binary code in the instruction input and executes it according to the
+ * Hack machine language specification. In the case of a C-instruction, computes the
+ * function specified by the instruction. If the instruction specifies to read a memory
+ * value, the inM input is expected to contain this value. If the instruction specifies
+ * to write a value to the memory, sets the outM output to this value, sets the addressM
+ * output to the target address, and asserts the writeM output (when writeM = 0, any
+ * value may appear in outM).
+ * If the reset input is 0, computes the address of the next instruction and sets the
+ * pc output to that value. If the reset input is 1, sets pc to 0.
+ * Note: The outM and writeM outputs are combinational: they are affected by the
+ * instruction's execution during the current cycle. The addressM and pc outputs are
+ * clocked: although they are affected by the instruction's execution, they commit to
+ * their new values only in the next cycle.
+ */
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    ///// AREGISTER /////
+    // case1: instruction[15]==0, input is an A instruction 
+    // case2: i[15]==1 AND i[5]==1, a C instrct whose destination is A
+	// load=1 if (case1 or case2), else load=0
+    Not(in= instruction[15], out= case1);
+    And(a=instruction[15], b=instruction[5], out=case2);
+    Or(a= case1, b= case2, out= loadA);
+    // in=i if case1
+    // in=ALU_output if case2
+    Mux16(a= instruction, b= ALUout, sel= case2, out= inA);
+    ARegister(in=inA, load=loadA, out=Aout);
+
+    ///// ALU /////
+    // x = D_register_output always
+    // y = inM if i[12]==1, else A_register_output
+    // other inputs determined by i[11..6]
+    // 
+    ALU(x= Dout, y= y, zx= instruction[11], nx= instruction[10],
+    zy= instruction[9], ny= instruction[8], 
+    f= instruction[7], no= instruction[6], out= ALUout, zr= zr, ng= ng);
+    And(a=instruction[15], b=instruction[12], out=AMSwitch);
+    Mux16(a=Aout, b=inM, sel=AMSwitch, out=y);
+
+    ///// DREGISTER /////
+    // load if given C instruction whose destination is D (i[4]==1)
+    // in=ALU_output
+    And(a=instruction[15], b=instruction[4], out=loadD);
+    DRegister(in=ALUout, load=loadD, out=Dout);
+
+    //outM is just ALU_output
+    Or16(a= ALUout, b= false, out= outM);
+    //writeM is just i[15] AND i[3]
+    And(a= instruction[15], b= instruction[3], out= writeM);
+    //addressM is just A_register_output
+    Or16(a= Aout, b= false, out[0..14]= addressM);
+
+
+    // jumps
+    Not(in=ng, out=notng);
+    Not(in=zr, out=notzr);
+    And(a=instruction[15], b=instruction[0], out=jgt);
+    And(a=notng, b=notzr, out=posnzr);
+    And(a=jgt, b=posnzr, out=ld1);
+
+    And(a=instruction[15], b=instruction[1], out=jeq);
+    And(a=jeq, b=zr, out=ld2);
+
+    And(a=instruction[15], b=instruction[2], out=jlt);
+    And(a=jlt, b=ng, out=ld3);
+
+    Or(a=ld1, b=ld2, out=ldt);
+    Or(a=ld3, b=ldt, out=ld);
+
+    PC(in=Aout, load=ld, inc=true, reset=reset, out[0..14]=pc);
+}
