@@ -1,0 +1,18 @@
+class Main {
+    function void main() {
+        var Paddle paddle1;
+        var Ball ball;
+        var int k;
+        do Screen.clearScreen();
+        let paddle1 = Paddle.new(205, 240);
+        let ball = Ball.new(100, 200, 1, 1);
+        while (true) {
+            let k = Keyboard.keyPressed();
+            if(k = 97) { do paddle1.move_left(); }
+            if(k = 100) { do paddle1.move_right(); }
+            do ball.move(paddle1.X(), paddle1.Y(), 100, 5);
+            do Sys.wait(1);
+        }
+        return;
+    }
+}

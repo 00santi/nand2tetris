@@ -1,0 +1,50 @@
+class Ball {
+    field int x;
+    field int y;
+    field int dx;
+    field int dy;
+    constructor Ball new(int X, int Y, int DX, int DY) {
+        let x = X;
+        let y = Y;
+        let dx = DX;
+        let dy = DY;
+        return this;
+    }
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x+6, y+6);
+        return;
+    }
+    method void clear() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x+6, y+6);
+        return;
+    }
+    method void move(int px, int py, int pw, int ph) {
+        do clear();
+
+        if (dx > 0) { if (x + dx + 6 > 511) { let dx = dx * -1; } }
+        if (dx < 0) { if (x + dx < 1) { let dx = dx * -1; } }
+        if (dy > 0) { if (y + dy + 6 > 255) { let dy = dy * -1; } }
+        if (dy < 0) { if (y + dy < 1) { let dy = dy * -1; } }
+
+        if (dy > 0) {
+            if (~((y + 6) < py)) {
+                if (~(y > (py + ph))) {
+                    if (~((x + 6) < px)) {
+                        if (~(x > (px + pw))) {
+                            let dy = -dy;
+                            let y = py - 7;
+                        }
+                    }
+                }
+            }
+        }
+
+        let x = x + dx;
+        let y = y + dy;
+
+        do draw();
+        return;
+    }
+}
