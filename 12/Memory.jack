@@ -1,0 +1,30 @@
+class Memory {
+    field int i;
+    field Array ram;
+    function void init() {
+        let i = 256;
+        let ram = Array.new(32768);
+        return;
+    }
+
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+    function Array alloc(int size) {
+        var Array res;
+        let res = i;
+        let i = i + size;
+        return res;
+    }
+
+    function void deAlloc(Array o) {
+        return;
+    }
+
+}

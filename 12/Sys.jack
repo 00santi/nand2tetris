@@ -1,0 +1,33 @@
+class Sys {
+    function void init() {
+        do Memory.init();
+        do Output.init();
+        do Keyboard.init();
+        do Main.main();
+        return;
+    }
+
+    function void halt() {
+        while(true) { }
+        return;
+    }
+
+    function void wait(int duration) {
+        var int i, j, cycles;
+        let cycles = 300;
+        let i = duration;
+        while(i > 0) {
+            let j = cycles;
+            while(j > 0) { let j = j - 1; }
+            let i = i - 1;
+        }
+        return;
+    }
+
+    function void error(int errorCode) {
+        do Output.printString("ERR");
+        do Output.printInt(errorCode);
+        do Sys.halt();
+        return;
+    }
+}

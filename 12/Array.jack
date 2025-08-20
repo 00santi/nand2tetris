@@ -1,0 +1,14 @@
+class Array {
+    field int length;
+    field int data;
+    function Array new(int size) {
+        let length = size;
+        let data = Memory.alloc(size);
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(data);
+        return;
+    }
+}

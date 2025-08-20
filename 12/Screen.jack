@@ -1,0 +1,121 @@
+class Screen {
+    field boolean color;
+    field Array screen;
+
+    function void init() {
+        var int i;
+        let color = false;
+        let screen = Array.new(512);
+        let i = 0;
+        while (i < 512) {
+            let screen[i] = Array.new(256);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void clearScreen() {
+        var int i, j;
+        var Array row;
+        let color = false;
+        let i = 0;
+        while (i < 512) {
+            let row = screen[i];
+            let j = 0;
+            while (j < 256) {
+                let row[j] = 0;
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void setColor(boolean b) {
+        let color = b;
+        return;
+    }
+
+    function void drawPixel(int x, int y) {
+        var int v;
+        var Array row;let row = screen[x];
+        if (color) {
+            let v = 1;
+        } else {
+            let v = 0;
+        }
+        let row = screen[x];
+        let row[y] = v;
+        return;
+    }
+
+    function void drawLine(int x1, int y1, int x2, int y2) {
+        var int x, y, dx, dy, sx, sy, err, e2;
+        let x = x1;
+        let y = y1;
+        let dx = x2 - x1;
+        if (dx < 0) { let dx = 0 - dx; }
+        let sx = 1;
+        if (x1 > x2) { let sx = -1; }
+        let dy = y2 - y1;
+        if (dy < 0) { let dy = 0 - dy; }
+        let sy = 1;
+        if (y1 > y2) { let sy = -1; }
+        let err = dx - dy;
+        while (true) {
+            do Screen.drawPixel(x, y);
+            if (x = x2) {
+                if (y = y2) { return; }
+            }
+            let e2 = err + err;
+            if (e2 > -dy) {
+                let err = err - dy;
+                let x = x + sx;
+            }
+            if (e2 < dx) {
+                let err = err + dx;
+                let y = y + sy;
+            }
+        }
+        return;
+    }
+
+    function void fillRectangle(int x1, int y1, int x2, int y2) {
+        var int left, right, top, bottom, yy;
+        let left  = x1;
+        if (x2 < left) { let left = x2; }
+        let right = x1;
+        if (x2 > right) { let right = x2; }
+        let top = y1;
+        if (y2 < top) { let top = y2; }
+        let bottom = y1;
+        if (y2 > bottom) { let bottom = y2; }
+        let yy = top;
+        while (~(yy > bottom)) {
+            do Screen.drawLine(left, yy, right, yy);
+            let yy = yy + 1;
+        }
+        return;
+    }
+
+    function void drawCircle(int xc, int yc, int r) {
+        var int dx, dy, d;
+        let dx = 0;
+        let dy = r;
+        let d = 1 - r;
+        while (~(dx > dy)) {
+            do Screen.drawLine(xc - dx, yc + dy, xc + dx, yc + dy);
+            do Screen.drawLine(xc - dx, yc - dy, xc + dx, yc - dy);
+            do Screen.drawLine(xc - dy, yc + dx, xc + dy, yc + dx);
+            do Screen.drawLine(xc - dy, yc - dx, xc + dy, yc - dx);
+            let dx = dx + 1;
+            if (d < 0) {
+                let d = d + (2 * dx) + 1;
+            } else {
+                let d = d + (2 * (dx - dy)) + 1;
+                let dy = dy - 1;
+            }
+        }
+        return;
+    }
+}

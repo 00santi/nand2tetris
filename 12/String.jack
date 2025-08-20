@@ -1,0 +1,101 @@
+class String {
+    field int len, data;
+    constructor String new(int maxLength) {
+        let len = 0;
+        let data = Memory.alloc(maxLength);
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(data);
+        return;
+    }
+
+    method int length() {
+        return len;
+    }
+
+    method char charAt(int j) {
+        return data[j];
+    }
+
+    method void setCharAt(int j, char c) {
+        let data[j] = c;
+        return;
+    }
+
+    method String appendChar(char c) {
+        let data[len] = c;
+        let len = len + 1;
+        return this;
+    }
+
+    method void eraseLastChar() {
+        let len = len - 1;
+        return this;
+    }
+
+    method int intValue() {
+        var int i, res, j;
+        var boolean continue;
+
+        let i = 0;
+        let continue = true;
+        while ((i < len) & continue) {
+            if (data[i] < 48) { let continue = false; }
+            if (data[i] > 57) { let continue = false; }
+            if (continue) { let i = i + 1; }
+        }
+
+        let res = 0;
+        let j = 0;
+        while(j < i) {
+            let res = res * 10 + (data[j] - 48);
+            let j = j + 1;
+        }
+        return res;
+    }
+
+    method void setInt(int val) {
+        var int i, n, digit;
+        var boolean negative;
+
+        let len = 0;
+        let n = val;
+        let negative = val < 0;
+        if (negative) { let n = -val; }
+
+        if (n = 0) {
+            do appendChar(48);
+            return;
+        }
+        while (n > 0) {
+            let digit = n - (n / 10) * 10;
+            do appendChar(digit + 48);
+            let n = n / 10;
+        }
+
+        let i = 0;
+        if (negative) { do appendChar(45); }
+        while (i < len / 2) {
+            let digit = charAt(i);
+            do setCharAt(i, charAt(len - i - 1));
+            do setCharAt(len - i - 1, digit);
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    function char newLine() {
+        return 128;
+    }
+
+    function char backSpace() {
+        return 129;
+    }
+
+    function char doubleQuote() {
+        return 34;
+    }
+}
